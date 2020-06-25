@@ -1,0 +1,4 @@
+{
+  "MongoURI": "mongodb+srv://admin:admin@shopease-mkvzh.mongodb.net/test?retryWrites=true&w=majority",
+  "jwtSecret": "secret"
+}
