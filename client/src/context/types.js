@@ -1,2 +1,10 @@
 export const OPEN_SIDEBAR = "OPEN_SIDEBAR";
 export const CLOSE_SIDEBAR = "CLOSE_SIDEBAR";
+export const LOGIN = "LOGIN";
+export const LOGIN_FAILED = "LOGIN_FAILED";
+export const REGISTER = "REGISTER";
+export const REGISTER_FAILED = "REGISTER_FAILED";
+export const LOAD_USER = "LOAD_USER";
+export const CLEAR_ERRORS = "CLEAR_ERRORS";
+export const AUTH_ERRORS = "AUTH_ERRORS";
+export const LOGOUT = "LOGOUT";

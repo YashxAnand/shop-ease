@@ -17,6 +17,10 @@ const ProductSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
+  featured: {
+    type: Boolean,
+    required: true,
+  },
   description: {
     type: String,
     required: true,

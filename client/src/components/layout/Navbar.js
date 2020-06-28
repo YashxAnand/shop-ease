@@ -2,12 +2,18 @@ import React, { useContext } from "react";
 import SearchBar from "./Searchbar";
 import { Link } from "react-router-dom";
 import SidebarContext from "../../context/sidebar/SidebarContext";
+import AuthContext from "../../context/auth/AuthContext";
 
-const Navbar = () => {
+const Navbar = props => {
   const { setSidebarOpen } = useContext(SidebarContext);
+  const { isAuthenticated, logout } = useContext(AuthContext);
 
   const linkStyle = {
     textDecoration: "none",
+  };
+
+  const onClick = () => {
+    logout();
   };
 
   return (
@@ -24,12 +30,20 @@ const Navbar = () => {
       </div>
       <SearchBar />
       <div>
-        <Link to='/' className='link' style={linkStyle}>
-          Login
-        </Link>
-        <Link to='/' className='link' style={linkStyle}>
-          Signup
-        </Link>
+        {!isAuthenticated ? (
+          <>
+            <Link to='/login' className='link' style={linkStyle}>
+              Login
+            </Link>
+            <Link to='/signup' className='link' style={linkStyle}>
+              Signup
+            </Link>
+          </>
+        ) : (
+          <Link to='/' className='link' style={linkStyle} onClick={onClick}>
+            Logout
+          </Link>
+        )}
         <Link to='/' className='link' style={linkStyle}>
           About
         </Link>
