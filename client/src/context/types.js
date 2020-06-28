@@ -8,3 +8,4 @@ export const LOAD_USER = "LOAD_USER";
 export const CLEAR_ERRORS = "CLEAR_ERRORS";
 export const AUTH_ERRORS = "AUTH_ERRORS";
 export const LOGOUT = "LOGOUT";
+export const PRODUCTS_FETCHED = "PRODUCTS_FETCHED";
