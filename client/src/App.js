@@ -8,6 +8,7 @@ import SidebarContext from "./context/sidebar/SidebarContext";
 import AuthContext from "./context/auth/AuthContext";
 import Login from "./components/pages/Login";
 import Signup from "./components/pages/Signup";
+import Product from "./components/pages/Product";
 
 function App() {
   const { sidebarOpen } = useContext(SidebarContext);
@@ -26,6 +27,7 @@ function App() {
           <Route exact path='/' component={Home} />
           <Route exact path='/login' component={Login} />
           <Route exact path='/signup' component={Signup} />
+          <Route exact path='/products/:id' component={Product} />
         </Switch>
       </div>
     </Router>

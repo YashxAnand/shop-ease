@@ -53,4 +53,15 @@ router.get("/featured", async (req, res) => {
   }
 });
 
+//GET a product by id
+router.get("/:id", async (req, res) => {
+  try {
+    let product = await Product.findById(req.params.id);
+    res.json({ product });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ msg: "Server error" });
+  }
+});
+
 module.exports = router;

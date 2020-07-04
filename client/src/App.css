@@ -16,3 +16,21 @@ body {
   color: grey;
   text-decoration: none;
 }
+
+.clickable {
+  transition: 0.5s;
+}
+
+.clickable:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+.product-link {
+  color: black;
+}
+
+.product-link:hover {
+  color: black;
+  text-decoration: none;
+}
