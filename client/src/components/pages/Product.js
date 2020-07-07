@@ -1,8 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import AuthContext from "../../context/auth/AuthContext";
+import ProductsContext from "../../context/products/ProductsContext";
+import { Alert } from "react-bootstrap";
 import axios from "axios";
 
 const Product = props => {
   const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  const { isAuthenticated } = useContext(AuthContext);
+  const { message, error, addToCart } = useContext(ProductsContext);
+
+  const handleChange = e => {
+    setQuantity(e.target.value);
+  };
+
+  const handleClick = e => {
+    if (!isAuthenticated) {
+      props.history.push("/login");
+    } else {
+      addToCart(props.match.params.id, quantity);
+    }
+  };
 
   useEffect(() => {
     axios
@@ -45,9 +64,17 @@ const Product = props => {
                 className='form-control'
                 style={{ width: "80px" }}
                 min='1'
+                value={quantity}
+                onChange={handleChange}
               />
             </h4>
-            <button className='btn btn-warning mt-2'>Add to cart</button>
+            <button className='btn btn-warning mt-2' onClick={handleClick}>
+              Add to cart
+            </button>
+            <div className='mt-4'>
+              {error && <Alert variant='danger'>{error}</Alert>}
+              {message && <Alert variant='success'>{message}</Alert>}
+            </div>
           </div>
         </div>
       )}

@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const auth = require("../middleware/auth");
+const Cart = require("../models/Cart");
 
 router.post(
   "/register",
@@ -55,6 +56,12 @@ router.post(
           if (err) throw err;
           res.json({ token });
         });
+        let cart = new Cart({
+          user: user.id,
+          products: [],
+          total: 0,
+        });
+        cart.save();
       }
     } catch (err) {
       console.log(err.message);

@@ -47,7 +47,7 @@ const Navbar = props => {
         <Link to='/' className='link' style={linkStyle}>
           About
         </Link>
-        <Link to='/' className='link'>
+        <Link to='/cart' className='link'>
           <div className='fa fa-shopping-cart fa-lg'></div>
         </Link>
       </div>
