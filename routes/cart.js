@@ -62,9 +62,8 @@ router.post("/", auth, async (req, res) => {
 });
 
 //DELETE item from Cart
-router.delete("/", auth, async (req, res) => {
-  const { productID } = req.body;
-
+router.delete("/:id", auth, async (req, res) => {
+  const productID = req.params.id;
   try {
     let cart = await Cart.findOne({ user: req.user.id });
     let { products, total } = cart;
@@ -82,7 +81,9 @@ router.delete("/", auth, async (req, res) => {
       $inc: { availability: quantity },
     });
     await Cart.findByIdAndUpdate(cart.id, { products, total });
-    res.json({ msg: "Item removed from cart successfully" });
+
+    const current_cart = await Cart.findById(cart.id);
+    res.json({ cart: current_cart });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ msg: "Server error" });
@@ -106,14 +107,20 @@ router.put("/", auth, async (req, res) => {
         product.quantity = quantity;
       }
     });
-    total -= costchange;
-    await Cart.findOneAndUpdate({ user: req.user.id }, { products, total });
+    let product = await Product.findById(productID);
+    if (-qtychange > product.availability) {
+      res.status(400).json({ msg: "Quanitity not available in stock" });
+    } else {
+      total -= costchange;
+      await Cart.findOneAndUpdate({ user: req.user.id }, { products, total });
 
-    await Product.findByIdAndUpdate(productID, {
-      $inc: { availability: qtychange },
-    });
+      await Product.findByIdAndUpdate(productID, {
+        $inc: { availability: qtychange },
+      });
 
-    res.json({ msg: "Update Successful" });
+      const cart = await Cart.findOne({ user: req.user.id });
+      res.json({ cart });
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ msg: "Server Error" });

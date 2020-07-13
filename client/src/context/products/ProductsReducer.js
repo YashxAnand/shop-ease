@@ -3,6 +3,8 @@ import {
   CART_ADDITION_FAILED,
   CART_ADDITION_SUCCESS,
   CLEAR_MESSAGES,
+  SEARCH_SUCCESS,
+  SEARCH_ERROR,
 } from "../types";
 
 export default (state, action) => {
@@ -27,6 +29,19 @@ export default (state, action) => {
         ...state,
         error: null,
         message: null,
+        search_errors: null,
+      };
+    case SEARCH_SUCCESS:
+      return {
+        ...state,
+        search_result: action.payload,
+        search_errors: null,
+      };
+    case SEARCH_ERROR:
+      return {
+        ...state,
+        search_result: null,
+        search_errors: action.payload,
       };
     default:
       return state;

@@ -1,16 +1,37 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useContext } from "react";
+import CartContext from "../../context/cart/CartContext";
 
 const Cart = props => {
-  const [cart, setCart] = useState(null);
+  const [changes, setChanges] = useState({
+    id: null,
+    value: false,
+  });
+
+  const { getCart, cart, errors, updateCart, deleteItem } = useContext(
+    CartContext
+  );
+
+  const handleChange = id => e => {
+    setChanges({ id, value: true });
+    cart.products.map(product => {
+      if (product.product === id) product.quantity = e.target.value;
+    });
+  };
+
+  const handleClick = (productID, quantity) => e => {
+    setChanges({ ...changes, id: productID });
+    updateCart(productID, quantity);
+    setChanges({ ...changes, value: false });
+    getCart();
+  };
+
+  const handleDelete = productID => e => {
+    deleteItem(productID);
+    getCart();
+  };
 
   useEffect(() => {
-    axios
-      .get("api/cart")
-      .then(res => {
-        setCart({ ...res.data.cart });
-      })
-      .catch(error => console.log(error.response.data.msg));
+    getCart();
   }, []);
 
   let products = [],
@@ -42,9 +63,26 @@ const Cart = props => {
                   style={{ width: "80px" }}
                   min='1'
                   value={product.quantity}
-                  // onChange={handleChange}
+                  onChange={handleChange(product.product)}
                 />
+                {changes.value && changes.id === product.product && (
+                  <button
+                    className='btn btn-success ml-3'
+                    onClick={handleClick(product.product, product.quantity)}
+                  >
+                    Update
+                  </button>
+                )}
+                <button
+                  className='btn btn-danger ml-3'
+                  onClick={handleDelete(product.product)}
+                >
+                  Delete
+                </button>
               </h4>
+              {changes.id === product.product && (
+                <p style={{ color: "red" }}>{errors}</p>
+              )}
             </div>
             <div className='col-3 text-right'>
               <h4>&#8377;{product.cost}</h4>
@@ -76,7 +114,7 @@ const Cart = props => {
         </div>
       </div>
       <hr />
-      {products.length != 0 ? (
+      {products.length !== 0 ? (
         products.map(product => product)
       ) : (
         <div className='col-12 text-center'>

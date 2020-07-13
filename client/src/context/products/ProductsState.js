@@ -7,6 +7,8 @@ import {
   CART_ADDITION_SUCCESS,
   CART_ADDITION_FAILED,
   CLEAR_MESSAGES,
+  SEARCH_SUCCESS,
+  SEARCH_ERROR,
 } from "../types";
 
 const ProductsState = props => {
@@ -14,6 +16,8 @@ const ProductsState = props => {
     featured: null,
     message: null,
     error: null,
+    search_result: null,
+    search_errors: null,
   };
 
   const [state, dispatch] = useReducer(ProductsReducer, initialState);
@@ -49,12 +53,25 @@ const ProductsState = props => {
     }
   };
 
+  const search_product = async query => {
+    try {
+      console.log(query);
+      const res = await axios.get(`/api/products/search/${query}`);
+      dispatch({ type: SEARCH_SUCCESS, payload: res.data.items });
+    } catch (error) {
+      dispatch({ type: SEARCH_ERROR, payload: error.response.data.msg });
+    }
+  };
+
   return (
     <ProductsContext.Provider
       value={{
         featured: state.featured,
         message: state.message,
         error: state.error,
+        search_result: state.search_result,
+        search_errors: state.search_errors,
+        search_product,
         getFeaturedProducts,
         addToCart,
       }}

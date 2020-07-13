@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const auth = require("../middleware/auth");
 
 //Add products
 router.post("/", async (req, res) => {
@@ -53,6 +54,24 @@ router.get("/featured", async (req, res) => {
   }
 });
 
+//GET searched items
+router.get("/search/:query", async (req, res) => {
+  try {
+    const regex = new RegExp(`.*${req.params.query}.*`, "gi");
+    let items = await Product.find({
+      $or: [{ name: regex }, { category: regex }, { description: regex }],
+    });
+    if (items.length === 0) {
+      res.status(404).json({ msg: "No product found" });
+    } else {
+      res.json({ items });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ msg: "Server Error" });
+  }
+});
+
 //GET a product by id
 router.get("/:id", async (req, res) => {
   try {
@@ -64,4 +83,66 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//POST a review
+router.post("/review/:id", auth, async (req, res) => {
+  const { comment, rating } = req.body;
+  try {
+    const review = { comment, rating };
+    let product = await Product.findById(req.params.id);
+    product.reviews.push(review);
+    product.avg_rating = (
+      (product.avg_rating * (product.reviews.length - 1) + Number(rating)) /
+      product.reviews.length
+    ).toFixed(2);
+    product.save();
+    res.json({ product });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ msg: "Server Error" });
+  }
+});
+
+//Delete a review
+router.delete("/review/:product_id/:review_id", auth, async (req, res) => {
+  try {
+    let product = await Product.findById(req.params.product_id);
+    product.reviews = product.reviews.filter(review => {
+      if (review._id.toString() !== req.params.review_id) return review;
+
+      product.avg_rating = (
+        (product.avg_rating * product.reviews.length - review.rating) /
+        (product.reviews.length - 1)
+      ).toFixed(2);
+    });
+    product.save();
+    res.json({ product });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ msg: "Server Error" });
+  }
+});
+
+//Edit a review
+router.put("/review/:product_id/:review_id", auth, async (req, res) => {
+  const { comment, rating } = req.body;
+  try {
+    let product = await Product.findById(req.params.product_id);
+    product.reviews.map(review => {
+      if (review._id.toString() === req.params.review_id) {
+        review.comment = comment;
+        product.avg_rating = (
+          (product.avg_rating * product.reviews.length +
+            (Number(rating) - review.rating)) /
+          product.reviews.length
+        ).toFixed(2);
+        review.rating = rating;
+      }
+    });
+    product.save();
+    res.json({ product });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ msg: "Server Error" });
+  }
+});
 module.exports = router;
