@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const User = require("../models/User");
 const auth = require("../middleware/auth");
 
 //Add products
@@ -87,7 +88,9 @@ router.get("/:id", async (req, res) => {
 router.post("/review/:id", auth, async (req, res) => {
   const { comment, rating } = req.body;
   try {
-    const review = { comment, rating };
+    const user = await User.findById(req.user.id);
+    const name = user.name;
+    const review = { comment, rating, name, user: req.user.id };
     let product = await Product.findById(req.params.id);
     product.reviews.push(review);
     product.avg_rating = (
@@ -109,10 +112,13 @@ router.delete("/review/:product_id/:review_id", auth, async (req, res) => {
     product.reviews = product.reviews.filter(review => {
       if (review._id.toString() !== req.params.review_id) return review;
 
-      product.avg_rating = (
-        (product.avg_rating * product.reviews.length - review.rating) /
-        (product.reviews.length - 1)
-      ).toFixed(2);
+      if (product.reviews.length == 1) product.avg_rating = 0;
+      else {
+        product.avg_rating = (
+          (product.avg_rating * product.reviews.length - review.rating) /
+          (product.reviews.length - 1)
+        ).toFixed(2);
+      }
     });
     product.save();
     res.json({ product });
