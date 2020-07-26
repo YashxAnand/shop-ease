@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 const auth = require("../middleware/auth");
 const Cart = require("../models/Cart");
+const Order = require("../models/Order");
 
 router.post(
   "/register",
@@ -61,7 +62,12 @@ router.post(
           products: [],
           total: 0,
         });
+        let order = new Order({
+          user: user.id,
+          orders: [],
+        });
         cart.save();
+        order.save();
       }
     } catch (err) {
       console.log(err.message);
@@ -129,5 +135,47 @@ router.get("/", auth, async (req, res) => {
     res.status(500).json({ msg: ["Server error"] });
   }
 });
+
+router.post(
+  "/edit-profile",
+  [
+    auth,
+    check("name", "Name's length should be between 2 to 30").isLength({
+      min: 2,
+      max: 30,
+    }),
+    check("email", "Please enter a valid email").isEmail(),
+    check("phone", "Please enter your phone number").not().isEmpty(),
+    check("phone", "Please enter a valid phone number").isNumeric(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req)
+      .array()
+      .map(error => error.msg);
+
+    if (errors.length !== 0) {
+      res.status(400).json({ msg: errors });
+    } else {
+      const { name, email, phone } = req.body;
+
+      try {
+        let user = await User.findOne({ email });
+        if (user && user._id.toString() !== req.user.id) {
+          res.status(400).json({ msg: ["Email already in use"] });
+        } else {
+          user = await User.findById(req.user.id);
+          user.name = name;
+          user.email = email;
+          user.phone = phone;
+          user.save();
+          res.json({ msg: "Profile updated successfully" });
+        }
+      } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ msg: ["Server error"] });
+      }
+    }
+  }
+);
 
 module.exports = router;

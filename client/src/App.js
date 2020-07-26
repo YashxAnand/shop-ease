@@ -12,6 +12,9 @@ import Product from "./components/pages/Product";
 import Cart from "./components/pages/Cart";
 import PrivateRoute from "./utils/PrivateRoute";
 import SearchResult from "./components/pages/SearchResult";
+import Checkout from "./components/pages/Checkout";
+import Orders from "./components/pages/Orders";
+import EditProfile from "./components/pages/EditProfile";
 
 function App() {
   const { sidebarOpen } = useContext(SidebarContext);
@@ -32,6 +35,9 @@ function App() {
           <Route exact path='/signup' component={Signup} />
           <Route exact path='/products/:id' component={Product} />
           <PrivateRoute exact path='/cart' component={Cart} />
+          <PrivateRoute exact path='/checkout' component={Checkout} />
+          <PrivateRoute exact path='/orders' component={Orders} />
+          <PrivateRoute exact path='/edit-profile' component={EditProfile} />
           <Route exact path='/search/:query' component={SearchResult} />
         </Switch>
       </div>

@@ -12,6 +12,9 @@ import {
   LOAD_USER,
   AUTH_ERRORS,
   LOGOUT,
+  UPDATE_USER_FAILED,
+  UPDATE_USER_SUCCESS,
+  CLEAR_MESSAGES,
 } from "../types";
 
 const AuthState = props => {
@@ -20,6 +23,8 @@ const AuthState = props => {
     errors: null,
     token: localStorage.getItem("token"),
     user: null,
+    update_success: null,
+    update_failed: null,
   };
 
   const [state, dispatch] = useReducer(AuthReducer, initialState);
@@ -58,9 +63,26 @@ const AuthState = props => {
     }
   };
 
+  const editProfile = async user_data => {
+    try {
+      const res = await axios.post("/api/user/edit-profile", user_data);
+      dispatch({ type: UPDATE_USER_SUCCESS, payload: res.data.msg });
+      clearMessage();
+    } catch (error) {
+      dispatch({ type: UPDATE_USER_FAILED, payload: error.response.data.msg });
+      clearMessage();
+    }
+  };
+
   const clearErrors = () => {
     setTimeout(() => {
       dispatch({ type: CLEAR_ERRORS });
+    }, 5000);
+  };
+
+  const clearMessage = () => {
+    setTimeout(() => {
+      dispatch({ type: CLEAR_MESSAGES });
     }, 5000);
   };
 
@@ -75,10 +97,13 @@ const AuthState = props => {
         errors: state.errors,
         token: state.token,
         user: state.user,
+        update_success: state.update_success,
+        update_failed: state.update_failed,
         login,
         loadUser,
         logout,
         registerUser,
+        editProfile,
       }}
     >
       {props.children}

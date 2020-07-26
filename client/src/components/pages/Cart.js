@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import CartContext from "../../context/cart/CartContext";
+import { Link } from "react-router-dom";
 
 const Cart = props => {
   const [changes, setChanges] = useState({
@@ -121,7 +122,23 @@ const Cart = props => {
           <h1>Cart is empty!</h1>
         </div>
       )}
-      {total !== 0 && total}
+      {cart && cart.total !== 0 && total}
+      {cart && cart.total !== 0 && (
+        <div className='row mt-5 mb-5'>
+          <div className='col-4'></div>
+          <div className='col-4'>
+            <Link to='/checkout' style={{ textDecoration: "none" }}>
+              <button
+                className='btn btn-warning d-block'
+                style={{ display: "block", width: "100%", fontSize: "150%" }}
+              >
+                checkout
+              </button>
+            </Link>
+          </div>
+          <div className='col-4'></div>
+        </div>
+      )}
     </div>
   );
 };
