@@ -2,19 +2,77 @@ import React, { useContext, useState } from "react";
 import CartContext from "../../context/cart/CartContext";
 import axios from "axios";
 
+const loadScript = src => {
+  return new Promise(resolve => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => {
+      resolve(true);
+    };
+    script.onerror = () => {
+      resolve(false);
+    };
+    document.body.appendChild(script);
+  });
+};
+
 const Checkout = props => {
   const { cart } = useContext(CartContext);
 
   const [payment_options, set_payment_options] = useState({
     cod: false,
-    paytm: true,
+    online: true,
   });
   const [order_confirmed, setOrderConfirmed] = useState(false);
 
   const handleClick = e => {
     set_payment_options({
       cod: !payment_options.cod,
-      paytm: !payment_options.paytm,
+      online: !payment_options.online,
+    });
+  };
+  const displayRazorpay = async () => {
+    const res = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
+
+    if (!res) {
+      alert("Network connection failed");
+      return;
+    }
+
+    axios.post("/api/payment", { amount: cart.total }).then(res => {
+      console.log(res.data);
+      const options = {
+        key: "rzp_test_69AzAueBR9O95Q",
+        currency: res.data.currency,
+        amount: res.data.amount,
+        order_id: res.data.id,
+        name: "ShopEase",
+        description: "eCommerce website",
+        image: "https://example.com/your_logo",
+        handler: function (response) {
+          const post_data = {
+            name: document.getElementById("name").value,
+            mobile: document.getElementById("mobile").value,
+            zip_code: document.getElementById("zip-code").value,
+            address_line1: document.getElementById("address-line1").value,
+            address_line2: document.getElementById("address-line2").value,
+            city: document.getElementById("city").value,
+            state: document.getElementById("state").value,
+            total: cart.total,
+            products: cart.products,
+          };
+          axios
+            .post("/api/orders", post_data)
+            .then(res => {
+              setOrderConfirmed(true);
+            })
+            .catch(err => console.log(err.response.data.msg));
+        },
+      };
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
     });
   };
 
@@ -31,12 +89,16 @@ const Checkout = props => {
       total: cart.total,
       products: cart.products,
     };
-    axios
-      .post("/api/orders", post_data)
-      .then(res => {
-        setOrderConfirmed(true);
-      })
-      .catch(err => console.log(err.response.data.msg));
+    if (payment_options.cod) {
+      axios
+        .post("/api/orders", post_data)
+        .then(res => {
+          setOrderConfirmed(true);
+        })
+        .catch(err => console.log(err.response.data.msg));
+    } else {
+      displayRazorpay();
+    }
   };
 
   if (!order_confirmed) {
@@ -190,18 +252,18 @@ const Checkout = props => {
                 <input
                   type='radio'
                   className='form-check-input mt-5'
-                  name='paytm'
-                  id='paytm'
+                  name='online'
+                  id='online'
                   value='option2'
-                  checked={payment_options.paytm}
+                  checked={payment_options.online}
                   onClick={handleClick}
                 />
-                <label htmlFor='paytm' className='form-check-label'>
+                <label htmlFor='online' className='form-check-label'>
                   <img
-                    src={require("../../images/paytm.jpg")}
+                    src={require("../../images/razorpay.jpg")}
                     width='150rem'
                     height='100rem'
-                    alt='Paytm'
+                    alt='online'
                   />
                 </label>
               </div>

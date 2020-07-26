@@ -1,4 +1,6 @@
 {
   "MongoURI": "mongodb+srv://admin:admin@shopease-mkvzh.mongodb.net/test?retryWrites=true&w=majority",
-  "jwtSecret": "secret"
+  "jwtSecret": "secret",
+  "mkey": "rzp_test_69AzAueBR9O95Q",
+  "msecret": "A71rQlkc7reGXjTHUIQ2Gepo"
 }
