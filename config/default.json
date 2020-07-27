@@ -1,6 +1,6 @@
 {
-  "MongoURI": "mongodb+srv://admin:admin@shopease-mkvzh.mongodb.net/test?retryWrites=true&w=majority",
+  "MongoURI": "Your mongo URI",
   "jwtSecret": "secret",
-  "mkey": "rzp_test_69AzAueBR9O95Q",
-  "msecret": "A71rQlkc7reGXjTHUIQ2Gepo"
+  "mkey": "Your razorpay key",
+  "msecret": "Your razorpay secret"
 }
